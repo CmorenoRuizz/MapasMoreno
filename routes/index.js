@@ -16,5 +16,11 @@ router.get('/testbootstrapsweetalert2', function(req, res, next) {
   res.render('testbootstrapsweetalert2', { title: 'Prueba de Bootstrap con Sweetalert2' });
 });
 
+//ruta de testleaflet, BORRAR LUEGO
+router.get('/testleaflet', function(req, res, next) {
+  res.render('testleaflet', { title: 'Prueba de Leaflet' });
+});
+
+
 
 module.exports = router;

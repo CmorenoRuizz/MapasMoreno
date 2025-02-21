@@ -23,6 +23,10 @@ app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
 //añadir a app.js SweetAlert2
 app.use('/js', express.static(__dirname + '/node_modules/sweetalert2/dist'));
+//añadir a app.js leaflet
+app.use('/css', express.static(__dirname + '/node_modules/leaflet/dist'));
+app.use('/js', express.static(__dirname + '/node_modules/leaflet/dist'));
+
 
 
 app.use('/', indexRouter);
