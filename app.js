@@ -21,6 +21,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 //añadir a app.js Bootstrap, paso 2 tras usar npm install bootstrap @popperjs/core
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
+//añadir a app.js SweetAlert2
+app.use('/js', express.static(__dirname + '/node_modules/sweetalert2/dist'));
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

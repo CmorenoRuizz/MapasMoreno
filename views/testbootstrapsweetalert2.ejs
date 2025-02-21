@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+<body>
+
+    <div class="container text-center mt-5">
+        <h1 class="text-primary">Bootstrap está funcionando en testbootstrap.ejs 🎉</h1>
+        <button class="btn btn-success" id="testButton">Haz clic aquí</button>
+        <button class="btn btn-warning" id="swalButton">Probar SweetAlert2</button>
+    </div>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/sweetalert2.all.min.js"></script>
+
+    <script>
+        document.getElementById('testButton').addEventListener('click', function() {
+            alert('¡Bootstrap está funcionando correctamente con JavaScript! 🚀');
+        });
+
+        document.getElementById('swalButton').addEventListener('click', function() {
+        Swal.fire({
+            title: 'SweetAlert2 Funciona 🎉',
+            text: '¡Integración exitosa con Bootstrap!',
+            icon: 'success',
+            confirmButtonText: 'Cerrar'
+            });
+        });
+    </script>
+</body>
+</html>

@@ -11,5 +11,10 @@ router.get('/testbootstrap', function(req, res, next) {
   res.render('testbootstrap', { title: 'Prueba de Bootstrap' });
 });
 
+//ruta de testbootstrapsweetalert2, BORRAR LUEGO
+router.get('/testbootstrapsweetalert2', function(req, res, next) {
+  res.render('testbootstrapsweetalert2', { title: 'Prueba de Bootstrap con Sweetalert2' });
+});
+
 
 module.exports = router;
