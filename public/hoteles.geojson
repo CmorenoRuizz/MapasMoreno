@@ -1,0 +1,69 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "nombre": "AC Hotel Málaga Palacio",
+                "descripcion": "Un hotel de 4 estrellas con vistas al puerto de Málaga.",
+                "direccion": "Calle Cortina del Muelle, 1, 29015 Málaga, España",
+                "telefono": "+34 952 21 51 85",
+                "categoria": "4 estrellas",
+                "precio_medio": "120€ por noche",
+                "imagen": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/643080936.jpg?k=b26690c79ef352ac714fb03d42c599a6bd655edbe2d477fbaa21a819c18e1cff&o=&hp=1"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-4.419555078790616, 36.71928029265892] 
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "nombre": "Gran Hotel Miramar",
+                "descripcion": "Un lujoso hotel de 5 estrellas con vistas al mar Mediterráneo.",
+                "direccion": "Paseo Reding, 22-24, 29016 Málaga, España",
+                "telefono": "+34 952 60 30 00",
+                "categoria": "5 estrellas",
+                "precio_medio": "250€ por noche",
+                "imagen": "https://www.kayak.es/rimg/himg/8f/ae/d9/leonardo-2016907-HOTEL_O-291872.jpg?width=1366&height=768&crop=true"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-4.4075017167023915, 36.72043076882037]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "nombre": "Hotel Ilunion Málaga",
+                "descripcion": "Hotel moderno con spa y piscina cubierta, ideal para viajes de negocios y turismo.",
+                "direccion": "Paseo Marítimo Antonio Machado, 10, 29002 Málaga, España",
+                "telefono": "+34 951 01 37 00",
+                "categoria": "4 estrellas",
+                "precio_medio": "110€ por noche",
+                "imagen": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/117110982.jpg?k=4e2bb1770cb76cca1bbec920ea536867423607f19355b4dd0f31e774f75bc06c&o=&hp=1"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-4.427316987867288, 36.71078329445252]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "nombre": "Soho Boutique Málaga",
+                "descripcion": "Hotel elegante en el centro de Málaga, cerca del puerto.",
+                "direccion": "Calle Córdoba, 5, 29001 Málaga, España",
+                "telefono": "+34 952 06 22 02",
+                "categoria": "3 estrellas",
+                "precio_medio": "90€ por noche",
+                "imagen": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/272728536.jpg?k=3198d8964bfe1870ddc864cd052933f772bfaf8717517a25e154b0b9a52f13d4&o=&hp=1"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-4.422103874373336, 36.71720697740942]
+            }
+        }
+    ]
+}

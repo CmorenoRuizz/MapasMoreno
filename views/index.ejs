@@ -1,11 +1,66 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Hoteles en Málaga</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/leaflet.css">
+</head>
+<body class="d-flex flex-column vh-100 m-0 p-0">
+
+    <div class="container-fluid d-flex flex-column vh-100 p-0">
+        <h1 class="text-center text-white bg-primary py-2">Hoteles en Málaga</h1>
+        <div id="map" class="flex-grow-1"></div> <!-- Mapa ocupará toda la pantalla -->
+    </div>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/leaflet.js"></script>
+    <script src="/js/sweetalert2.all.min.js"></script>
+    
+    <script>
+        // Inicializar el mapa centrado en Málaga
+        var map = L.map('map').setView([36.7213, -4.4217], 13);
+
+        // Añadir capa de OpenStreetMap
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // Cargar el archivo GeoJSON con los hoteles
+        fetch('/hoteles.geojson')
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, {
+                onEachFeature: function (feature, layer) {
+                    if (feature.properties) {
+                        let popupContent = `
+                            <div style="max-width: 250px; padding: 10px;">
+                                <h5 style="text-align: center; font-size: 16px; margin-bottom: 8px;"><b>${feature.properties.nombre}</b></h5>
+                                
+                                <a href="${feature.properties.imagen}" target="_blank">
+                                    <img src="${feature.properties.imagen}" alt="${feature.properties.nombre}" 
+                                        style="width: 100%; height: auto; max-width: 200px; border-radius: 5px; display: block; margin: 0 auto 10px;">
+                                </a>
+
+                                <p style="font-size: 14px; margin: 2px 0;"><b>Dirección:</b> ${feature.properties.direccion}</p>
+                                <p style="font-size: 14px; margin: 2px 0;"><b>Teléfono:</b> ${feature.properties.telefono}</p>
+                                <p style="font-size: 14px; margin: 2px 0;"><b>Categoría:</b> ${feature.properties.categoria}</p>
+                                <p style="font-size: 14px; margin: 2px 0;"><b>Precio medio:</b> ${feature.properties.precio_medio}</p>
+                                <p style="font-size: 14px; margin-top: 6px;"><b>Descripción:</b>${feature.properties.descripcion}</p>
+                            </div>
+                        `;
+                        layer.bindPopup(popupContent);
+                    }
+                }
+            }).addTo(map);
+        })
+        .catch(error => console.error('Error cargando el archivo GeoJSON:', error));
+
+
+
+    </script>
+
+</body>
 </html>
