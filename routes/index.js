@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Hoteles Moreno' });
+  res.render('index', { title: 'Mapas Moreno - Hoteles Málaga' });
 });
 
 //ruta de testboostrap, BORRAR LUEGO

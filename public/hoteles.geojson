@@ -64,6 +64,86 @@
                 "type": "Point",
                 "coordinates": [-4.422103874373336, 36.71720697740942]
             }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "nombre": "Vincci Selección Posada del Patio",
+                "descripcion": "Hotel de 5 estrellas que combina historia y modernidad, con restos arqueológicos en su interior.",
+                "direccion": "Pasillo de Santa Isabel, 7, 29005 Málaga, España",
+                "telefono": "+34 951 00 11 20",
+                "categoria": "5 estrellas",
+                "precio_medio": "200€ por noche",
+                "imagen": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/13745582.jpg?k=af08c6b349014756f60708517d234d8d3b19c4d9d9ff6c17fc7145eafdb6b1e7&o=&hp=1"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-4.424939616413665, 36.72050026959125]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "nombre": "Barceló Málaga",
+                "descripcion": "Hotel moderno con acceso directo a la estación de tren y un tobogán gigante en el lobby.",
+                "direccion": "Calle Héroe de Sostoa, 2, 29002 Málaga, España",
+                "telefono": "+34 952 04 74 94",
+                "categoria": "4 estrellas",
+                "precio_medio": "150€ por noche",
+                "imagen": "https://multimedia.andalucia.org/fotos/image_111417.jpeg"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-4.431997801071198, 36.711358986831755]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "nombre": "Molina Lario",
+                "descripcion": "Hotel boutique de 4 estrellas con terraza en la azotea y vistas a la catedral de Málaga.",
+                "direccion": "Calle Molina Lario, 20-22, 29015 Málaga, España",
+                "telefono": "+34 952 06 20 02",
+                "categoria": "4 estrellas",
+                "precio_medio": "180€ por noche",
+                "imagen": "https://cdn0.bodas.net/vendor/28766/3_2/960/jpg/molina-lario-fachada-2_1_28766-1568129474.jpeg"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-4.4200693433995815, 36.71917117202504]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "nombre": "Room Mate Valeria",
+                "descripcion": "Hotel de diseño con una vibrante decoración y una terraza en la azotea con piscina.",
+                "direccion": "Plaza del Poeta Alfonso Canales, 5, 29001 Málaga, España",
+                "telefono": "+34 952 06 15 10",
+                "categoria": "4 estrellas",
+                "precio_medio": "160€ por noche",
+                "imagen": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/65804808.jpg?k=0a14ffd279b841ceb0dc6d1f3e4eaa5a1f3bd0bd509776687270b3bb355fa446&o=&hp=1"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-4.420855418263588, 36.717343075832545]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "nombre": "Hotel MS Maestranza",
+                "descripcion": "Hotel céntrico cerca de la plaza de toros, con spa y vistas panorámicas de la ciudad.",
+                "direccion": "Av. Cánovas del Castillo, 1, 29016 Málaga, España",
+                "telefono": "+34 952 21 51 00",
+                "categoria": "4 estrellas",
+                "precio_medio": "130€ por noche",
+                "imagen": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/12983293.jpg?k=b3d3be9e273a3ab8289082303efaf9d699d53312e27992403c380dd1fad2b1b2&o=&hp=1"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-4.411392460963205, 36.71992959847724]
+            }
         }
     ]
 }
