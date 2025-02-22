@@ -17,7 +17,7 @@
     
         <!-- Grupo de botones alineado al centro -->
         <div class="btn-group mt-2" role="group" aria-label="Botones de acción">
-            <button type="button" class="btn btn-success">Añadir</button>
+            <button type="button" class="btn btn-success" id="btn-add">Añadir</button>
             <button type="button" class="btn btn-warning">Editar</button>
             <button type="button" class="btn btn-danger">Eliminar</button>            
         </div>
@@ -35,51 +35,138 @@
     <script src="/js/sweetalert2.all.min.js"></script>
     
     <script>
-      var map = L.map('map').setView([36.7213, -4.4217], 13);
-  
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      }).addTo(map);
-  
-      // Definir un icono personalizado
-      var hotelIcon = L.icon({
-          iconUrl: '/images/hotel-icon.png', // Ruta de la imagen en la carpeta public/img/
-          iconSize: [32, 32], // Tamaño del icono en píxeles
-          iconAnchor: [16, 32], // Punto de anclaje del icono (centro abajo)
-          popupAnchor: [0, -32] // Punto donde aparece el popup con respecto al icono
-      });
-  
-      fetch('/hoteles.geojson')
-          .then(response => response.json())
-          .then(data => {
-              L.geoJSON(data, {
-                  pointToLayer: function (feature, latlng) {
-                      return L.marker(latlng, { icon: hotelIcon }); // Usamos el icono personalizado
-                  },
-                  onEachFeature: function (feature, layer) {
-                      if (feature.properties) {
-                          let popupContent = `
-                              <div style="max-width: 250px; padding: 10px;">
-                                  <h5 style="text-align: center; font-size: 16px; margin-bottom: 8px;"><b>${feature.properties.nombre}</b></h5>
-                                  <a href="${feature.properties.imagen}" target="_blank">
-                                      <img src="${feature.properties.imagen}" alt="${feature.properties.nombre}" 
-                                          style="width: 100%; height: auto; max-width: 200px; border-radius: 5px; display: block; margin: 0 auto 10px;">
-                                  </a>
-                                  <p style="font-size: 14px; margin: 2px 0;"><b>Dirección:</b> ${feature.properties.direccion}</p>
-                                  <p style="font-size: 14px; margin: 2px 0;"><b>Teléfono:</b> ${feature.properties.telefono}</p>
-                                  <p style="font-size: 14px; margin: 2px 0;"><b>Categoría:</b> ${feature.properties.categoria}</p>
-                                  <p style="font-size: 14px; margin: 2px 0;"><b>Precio medio:</b> ${feature.properties.precio_medio}</p>
-                                  <p style="font-size: 13px; margin-top: 6px;"><b>Descripción:</b> ${feature.properties.descripcion}</p>
-                              </div>
-                          `;
-                          layer.bindPopup(popupContent);
-                      }
-                  }
-              }).addTo(map);
-          })
-          .catch(error => console.error('Error cargando el archivo GeoJSON:', error));
-  </script>
+        var map = L.map('map').setView([36.7213, -4.4217], 13);
+    
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+    
+        // Definir un icono personalizado
+        var hotelIcon = L.icon({
+            iconUrl: '/images/hotel-icon.png',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32]
+        });
+    
+        fetch('/hoteles.geojson')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    pointToLayer: function (feature, latlng) {
+                        return L.marker(latlng, { icon: hotelIcon });
+                    },
+                    onEachFeature: function (feature, layer) {
+                        if (feature.properties) {
+                            let popupContent = `
+                                <div style="max-width: 250px; padding: 10px;">
+                                    <h5 style="text-align: center; font-size: 16px; margin-bottom: 8px;"><b>${feature.properties.nombre}</b></h5>
+                                    <a href="${feature.properties.imagen}" target="_blank">
+                                        <img src="${feature.properties.imagen}" alt="${feature.properties.nombre}" 
+                                            style="width: 100%; height: auto; max-width: 200px; border-radius: 5px; display: block; margin: 0 auto 10px;">
+                                    </a>
+                                    <p style="font-size: 14px; margin: 2px 0;"><b>Dirección:</b> ${feature.properties.direccion}</p>
+                                    <p style="font-size: 14px; margin: 2px 0;"><b>Teléfono:</b> ${feature.properties.telefono}</p>
+                                    <p style="font-size: 14px; margin: 2px 0;"><b>Categoría:</b> ${feature.properties.categoria}</p>
+                                    <p style="font-size: 14px; margin: 2px 0;"><b>Precio medio:</b> ${feature.properties.precio_medio}</p>
+                                    <p style="font-size: 13px; margin-top: 6px;"><b>Descripción:</b> ${feature.properties.descripcion}</p>
+                                </div>
+                            `;
+                            layer.bindPopup(popupContent);
+                        }
+                    }
+                }).addTo(map);
+            })
+            .catch(error => console.error('Error cargando el archivo GeoJSON:', error));
+    
+        // Variable global para almacenar las coordenadas seleccionadas
+        let selectedCoordinates = null;
+    
+        // Evento para capturar clics en el mapa y abrir el formulario
+        map.on('click', function(e) {
+            selectedCoordinates = [e.latlng.lat, e.latlng.lng];
+    
+            Swal.fire({
+                title: 'Añadir un nuevo hotel',
+                html: `
+                    <input type="text" id="hotel-nombre" class="swal2-input" placeholder="Nombre del hotel">
+                    <input type="text" id="hotel-direccion" class="swal2-input" placeholder="Dirección">
+                    <input type="text" id="hotel-telefono" class="swal2-input" placeholder="Teléfono">
+                    <select id="hotel-categoria" class="swal2-select">
+                        <option value="" disabled selected>Seleccione una categoría</option>
+                        <option value="1 estrella">1 estrella</option>
+                        <option value="2 estrellas">2 estrellas</option>
+                        <option value="3 estrellas">3 estrellas</option>
+                        <option value="4 estrellas">4 estrellas</option>
+                        <option value="5 estrellas">5 estrellas</option>
+                    </select>
+                    <input type="text" id="hotel-precio" class="swal2-input" placeholder="Precio medio (ej: 120€)">
+                    <input type="text" id="hotel-imagen" class="swal2-input" placeholder="URL de la imagen">
+                    <textarea id="hotel-descripcion" class="swal2-textarea" placeholder="Descripción del hotel" style="resize: none;"></textarea>
+                    <p>Coordenadas seleccionadas: <b>${selectedCoordinates[0]}, ${selectedCoordinates[1]}</b></p>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Añadir',
+                preConfirm: () => {
+                    let nombre = document.getElementById('hotel-nombre').value.trim();
+                    let direccion = document.getElementById('hotel-direccion').value.trim();
+                    let telefono = document.getElementById('hotel-telefono').value.trim();
+                    let categoria = document.getElementById('hotel-categoria').value;
+                    let precio = document.getElementById('hotel-precio').value.trim();
+                    let imagen = document.getElementById('hotel-imagen').value.trim();
+                    let descripcion = document.getElementById('hotel-descripcion').value.trim();
+    
+                    if (!nombre || !direccion || !telefono || !categoria || !precio || !imagen || !descripcion) {
+                        Swal.showValidationMessage('Todos los campos son obligatorios.');
+                        return false;
+                    }
+    
+                    return { nombre, direccion, telefono, categoria, precio_medio: precio, imagen, descripcion, coordenadas: selectedCoordinates };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let newMarker = L.marker(result.value.coordenadas, { icon: hotelIcon }).addTo(map);
+                    let popupContent = `
+                        <div style="max-width: 250px; padding: 10px;">
+                            <h5 style="text-align: center; font-size: 16px; margin-bottom: 8px;"><b>${result.value.nombre}</b></h5>
+                            <a href="${result.value.imagen}" target="_blank">
+                                <img src="${result.value.imagen}" alt="${result.value.nombre}" 
+                                    style="width: 100%; height: auto; max-width: 200px; border-radius: 5px; display: block; margin: 0 auto 10px;">
+                            </a>
+                            <p style="font-size: 14px; margin: 2px 0;"><b>Dirección:</b> ${result.value.direccion}</p>
+                            <p style="font-size: 14px; margin: 2px 0;"><b>Teléfono:</b> ${result.value.telefono}</p>
+                            <p style="font-size: 14px; margin: 2px 0;"><b>Categoría:</b> ${result.value.categoria}</p>
+                            <p style="font-size: 14px; margin: 2px 0;"><b>Precio medio:</b> ${result.value.precio_medio}</p>
+                            <p style="font-size: 13px; margin-top: 6px;"><b>Descripción:</b> ${result.value.descripcion}</p>
+                        </div>
+                    `;
+                    newMarker.bindPopup(popupContent);
+    
+                    let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
+                    hotelesGuardados.push(result.value);
+                    localStorage.setItem('hoteles', JSON.stringify(hotelesGuardados));
+    
+                    Swal.fire('¡Añadido!', 'El hotel ha sido agregado correctamente.', 'success');
+                }
+            });
+        });
+    
+        // Cargar los hoteles guardados en LocalStorage al iniciar
+        window.onload = function() {
+            let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
+            hotelesGuardados.forEach(hotel => {
+                let marker = L.marker(hotel.coordenadas, { icon: hotelIcon }).addTo(map);
+                marker.bindPopup(`
+                    <div style="max-width: 250px; padding: 10px;">
+                        <h5 style="text-align: center;"><b>${hotel.nombre}</b></h5>
+                        <p><b>Descripción:</b> ${hotel.descripcion}</p>
+                    </div>
+                `);
+            });
+        };
+    </script>
+    
   
 
 </body>
