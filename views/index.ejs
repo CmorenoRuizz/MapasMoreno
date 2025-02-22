@@ -59,21 +59,30 @@
                     },
                     onEachFeature: function (feature, layer) {
                         if (feature.properties) {
-                            let popupContent = `
-                                <div style="max-width: 250px; padding: 10px;">
-                                    <h5 style="text-align: center; font-size: 16px; margin-bottom: 8px;"><b>${feature.properties.nombre}</b></h5>
-                                    <a href="${feature.properties.imagen}" target="_blank">
-                                        <img src="${feature.properties.imagen}" alt="${feature.properties.nombre}" 
-                                            style="width: 100%; height: auto; max-width: 200px; border-radius: 5px; display: block; margin: 0 auto 10px;">
-                                    </a>
-                                    <p style="font-size: 14px; margin: 2px 0;"><b>Dirección:</b> ${feature.properties.direccion}</p>
-                                    <p style="font-size: 14px; margin: 2px 0;"><b>Teléfono:</b> ${feature.properties.telefono}</p>
-                                    <p style="font-size: 14px; margin: 2px 0;"><b>Categoría:</b> ${feature.properties.categoria}</p>
-                                    <p style="font-size: 14px; margin: 2px 0;"><b>Precio medio:</b> ${feature.properties.precio_medio}</p>
-                                    <p style="font-size: 13px; margin-top: 6px;"><b>Descripción:</b> ${feature.properties.descripcion}</p>
-                                </div>
-                            `;
+                            let popupContent = createPopupContent(feature.properties);
                             layer.bindPopup(popupContent);
+
+                            // Añadir eventos después de que el popup se abra
+                            layer.on('popupopen', function() {
+                                let currentMarker = this;
+                                let container = currentMarker.getPopup().getContent();
+
+                                // Convertir el contenido string a elemento DOM
+                                let div = document.createElement('div');
+                                div.innerHTML = container;
+
+                                // Añadir eventos a los botones
+                                div.querySelector('.edit-btn').addEventListener('click', function() {
+                                    editarHotel(feature, currentMarker);
+                                });
+
+                                div.querySelector('.delete-btn').addEventListener('click', function() {
+                                    eliminarHotel(feature, currentMarker);
+                                });
+
+                                // Actualizar el contenido del popup con los eventos
+                                currentMarker.getPopup().setContent(div);
+                            });
                         }
                     }
                 }).addTo(map);
@@ -126,43 +135,203 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    let newMarker = L.marker(result.value.coordenadas, { icon: hotelIcon }).addTo(map);
-                    let popupContent = `
-                        <div style="max-width: 250px; padding: 10px;">
-                            <h5 style="text-align: center; font-size: 16px; margin-bottom: 8px;"><b>${result.value.nombre}</b></h5>
-                            <a href="${result.value.imagen}" target="_blank">
-                                <img src="${result.value.imagen}" alt="${result.value.nombre}" 
-                                    style="width: 100%; height: auto; max-width: 200px; border-radius: 5px; display: block; margin: 0 auto 10px;">
-                            </a>
-                            <p style="font-size: 14px; margin: 2px 0;"><b>Dirección:</b> ${result.value.direccion}</p>
-                            <p style="font-size: 14px; margin: 2px 0;"><b>Teléfono:</b> ${result.value.telefono}</p>
-                            <p style="font-size: 14px; margin: 2px 0;"><b>Categoría:</b> ${result.value.categoria}</p>
-                            <p style="font-size: 14px; margin: 2px 0;"><b>Precio medio:</b> ${result.value.precio_medio}</p>
-                            <p style="font-size: 13px; margin-top: 6px;"><b>Descripción:</b> ${result.value.descripcion}</p>
-                        </div>
-                    `;
-                    newMarker.bindPopup(popupContent);
-    
+                    let newFeature = {
+                        type: 'Feature',
+                        properties: {
+                            nombre: result.value.nombre,
+                            direccion: result.value.direccion,
+                            telefono: result.value.telefono,
+                            categoria: result.value.categoria,
+                            precio_medio: result.value.precio_medio,
+                            imagen: result.value.imagen,
+                            descripcion: result.value.descripcion
+                        },
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [ result.value.coordenadas[1], result.value.coordenadas[0] ]
+                        }
+                    };
+
+                    // Usar la nueva función para crear el marcador
+                    let newMarker = createMarkerWithEvents(newFeature);
+
                     let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
-                    hotelesGuardados.push(result.value);
+                    hotelesGuardados.push(newFeature);
                     localStorage.setItem('hoteles', JSON.stringify(hotelesGuardados));
-    
+
                     Swal.fire('¡Añadido!', 'El hotel ha sido agregado correctamente.', 'success');
                 }
             });
         });
     
+        // Función auxiliar para crear el contenido del popup
+        function createPopupContent(props) {
+            return `
+                <div style="max-width: 250px; padding: 10px;">
+                    <h5 style="text-align: center; font-size: 16px; margin-bottom: 8px;"><b>${props.nombre}</b></h5>
+                    <a href="${props.imagen}" target="_blank">
+                        <img src="${props.imagen}" alt="${props.nombre}" 
+                            style="width: 100%; height: auto; max-width: 200px; border-radius: 5px; display: block; margin: 0 auto 10px;">
+                    </a>
+                    <p style="font-size: 14px; margin: 2px 0;"><b>Dirección:</b> ${props.direccion}</p>
+                    <p style="font-size: 14px; margin: 2px 0;"><b>Teléfono:</b> ${props.telefono}</p>
+                    <p style="font-size: 14px; margin: 2px 0;"><b>Categoría:</b> ${props.categoria}</p>
+                    <p style="font-size: 14px; margin: 2px 0;"><b>Precio medio:</b> ${props.precio_medio}</p>
+                    <p style="font-size: 13px; margin-top: 6px;"><b>Descripción:</b> ${props.descripcion}</p>
+                    <div class="d-flex justify-content-between mt-3">
+                        <button class="btn btn-warning btn-sm edit-btn">Editar</button>
+                        <button class="btn btn-danger btn-sm delete-btn">Eliminar</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función para editar hotel
+        function editarHotel(hotel, marker) {
+            let props = hotel.properties;
+            let coords = marker.getLatLng();
+            selectedCoordinates = [coords.lat, coords.lng];
+
+            Swal.fire({
+                title: 'Editar hotel',
+                html: `
+                    <input type="text" id="hotel-nombre" class="swal2-input" placeholder="Nombre del hotel" value="${props.nombre}">
+                    <input type="text" id="hotel-direccion" class="swal2-input" placeholder="Dirección" value="${props.direccion}">
+                    <input type="text" id="hotel-telefono" class="swal2-input" placeholder="Teléfono" value="${props.telefono}">
+                    <select id="hotel-categoria" class="swal2-select">
+                        <option value="1 estrella" ${props.categoria === '1 estrella' ? 'selected' : ''}>1 estrella</option>
+                        <option value="2 estrellas" ${props.categoria === '2 estrellas' ? 'selected' : ''}>2 estrellas</option>
+                        <option value="3 estrellas" ${props.categoria === '3 estrellas' ? 'selected' : ''}>3 estrellas</option>
+                        <option value="4 estrellas" ${props.categoria === '4 estrellas' ? 'selected' : ''}>4 estrellas</option>
+                        <option value="5 estrellas" ${props.categoria === '5 estrellas' ? 'selected' : ''}>5 estrellas</option>
+                    </select>
+                    <input type="text" id="hotel-precio" class="swal2-input" placeholder="Precio medio" value="${props.precio_medio}">
+                    <input type="text" id="hotel-imagen" class="swal2-input" placeholder="URL de la imagen" value="${props.imagen}">
+                    <textarea id="hotel-descripcion" class="swal2-textarea" placeholder="Descripción del hotel" style="resize: none;">${props.descripcion}</textarea>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Guardar cambios',
+                preConfirm: () => {
+                    let nombre = document.getElementById('hotel-nombre').value.trim();
+                    let direccion = document.getElementById('hotel-direccion').value.trim();
+                    let telefono = document.getElementById('hotel-telefono').value.trim();
+                    let categoria = document.getElementById('hotel-categoria').value;
+                    let precio = document.getElementById('hotel-precio').value.trim();
+                    let imagen = document.getElementById('hotel-imagen').value.trim();
+                    let descripcion = document.getElementById('hotel-descripcion').value.trim();
+
+                    if (!nombre || !direccion || !telefono || !categoria || !precio || !imagen || !descripcion) {
+                        Swal.showValidationMessage('Todos los campos son obligatorios.');
+                        return false;
+                    }
+
+                    return { nombre, direccion, telefono, categoria, precio_medio: precio, imagen, descripcion, coordenadas: selectedCoordinates };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let updatedProps = result.value;
+                    
+                    // Actualizar las propiedades del hotel
+                    hotel.properties = updatedProps;
+
+                    // Crear nuevo contenido del popup
+                    let popupContent = createPopupContent(updatedProps);
+                    
+                    // Crear un elemento DOM temporal
+                    let tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = popupContent;
+
+                    // Añadir los eventos a los botones
+                    tempDiv.querySelector('.edit-btn').addEventListener('click', function() {
+                        editarHotel(hotel, marker);
+                    });
+
+                    tempDiv.querySelector('.delete-btn').addEventListener('click', function() {
+                        eliminarHotel(hotel, marker);
+                    });
+
+                    // Actualizar el contenido del popup
+                    marker.getPopup().setContent(tempDiv);
+
+                    // Actualizar localStorage
+                    let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
+                    let index = hotelesGuardados.findIndex(h =>
+                        h.geometry.coordinates[1] === coords.lat &&
+                        h.geometry.coordinates[0] === coords.lng
+                    );
+                    
+                    if (index !== -1) {
+                        hotelesGuardados[index].properties = updatedProps;
+                        localStorage.setItem('hoteles', JSON.stringify(hotelesGuardados));
+                    }
+
+                    Swal.fire('¡Actualizado!', 'El hotel ha sido actualizado correctamente.', 'success');
+                }
+            });
+        }
+
+        // Función para eliminar hotel
+        function eliminarHotel(hotel, marker) {
+            let props = hotel.properties;
+
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: `¿Deseas eliminar el hotel "${props.nombre}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let coords = marker.getLatLng();
+
+                    // Eliminar del mapa
+                    map.removeLayer(marker);
+
+                    // Eliminar del localStorage
+                    let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
+                    hotelesGuardados = hotelesGuardados.filter(h =>
+                        !(h.geometry.coordinates[1] === coords.lat &&
+                          h.geometry.coordinates[0] === coords.lng)
+                    );
+                    localStorage.setItem('hoteles', JSON.stringify(hotelesGuardados));
+
+                    Swal.fire('¡Eliminado!', 'El hotel ha sido eliminado correctamente.', 'success');
+                }
+            });
+        }
+
+        // Función para crear un marcador con eventos
+        function createMarkerWithEvents(feature) {
+            let marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], { icon: hotelIcon }).addTo(map);
+            let popupContent = createPopupContent(feature.properties);
+            
+            // Crear un elemento DOM temporal
+            let tempDiv = document.createElement('div');
+            tempDiv.innerHTML = popupContent;
+
+            // Añadir los eventos a los botones
+            tempDiv.querySelector('.edit-btn').addEventListener('click', function() {
+                editarHotel(feature, marker);
+            });
+
+            tempDiv.querySelector('.delete-btn').addEventListener('click', function() {
+                eliminarHotel(feature, marker);
+            });
+
+            // Bind el popup con el contenido y los eventos
+            marker.bindPopup(tempDiv);
+            
+            return marker;
+        }
+
         // Cargar los hoteles guardados en LocalStorage al iniciar
         window.onload = function() {
             let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
-            hotelesGuardados.forEach(hotel => {
-                let marker = L.marker(hotel.coordenadas, { icon: hotelIcon }).addTo(map);
-                marker.bindPopup(`
-                    <div style="max-width: 250px; padding: 10px;">
-                        <h5 style="text-align: center;"><b>${hotel.nombre}</b></h5>
-                        <p><b>Descripción:</b> ${hotel.descripcion}</p>
-                    </div>
-                `);
+            hotelesGuardados.forEach(feature => {
+                createMarkerWithEvents(feature);
             });
         };
     </script>
