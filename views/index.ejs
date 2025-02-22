@@ -13,16 +13,9 @@
     <div class="container-fluid d-flex flex-column vh-100 p-0">
       <h1 class="text-center text-white bg-dark py-2 mb-0">
         Bienvenido a MapasMoreno <br> 
-        <span class="h3">¡Principales hoteles en Málaga! Añade, edita y elimina a tu gusto:<br></span>
-    
-        <!-- Grupo de botones alineado al centro -->
-        <div class="btn-group mt-2" role="group" aria-label="Botones de acción">
-            <button type="button" class="btn btn-success" id="btn-add">Añadir</button>
-            <button type="button" class="btn btn-warning">Editar</button>
-            <button type="button" class="btn btn-danger">Eliminar</button>            
-        </div>
+        <span class="h4">¡Principales hoteles en Málaga! Añade haciendo clic en el mapa, edita y elimina a tu gusto<br></span>
       </h1>
-        <div id="map" class="flex-grow-1 m-0 p-0"></div> <!-- Mapa ocupará toda la pantalla -->
+        <div id="map" class="flex-grow-1 m-0 p-0"></div>
 
         <footer class="text-center text-white bg-dark py-2">
           Hecho por Carlos Moreno Ruiz 2º DAW
@@ -42,7 +35,6 @@
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
     
-        // Definir un icono personalizado
         var hotelIcon = L.icon({
             iconUrl: '/images/hotel-icon.png',
             iconSize: [32, 32],
@@ -62,16 +54,13 @@
                             let popupContent = createPopupContent(feature.properties);
                             layer.bindPopup(popupContent);
 
-                            // Añadir eventos después de que el popup se abra
                             layer.on('popupopen', function() {
                                 let currentMarker = this;
                                 let container = currentMarker.getPopup().getContent();
 
-                                // Convertir el contenido string a elemento DOM
                                 let div = document.createElement('div');
                                 div.innerHTML = container;
 
-                                // Añadir eventos a los botones
                                 div.querySelector('.edit-btn').addEventListener('click', function() {
                                     editarHotel(feature, currentMarker);
                                 });
@@ -80,7 +69,6 @@
                                     eliminarHotel(feature, currentMarker);
                                 });
 
-                                // Actualizar el contenido del popup con los eventos
                                 currentMarker.getPopup().setContent(div);
                             });
                         }
@@ -89,10 +77,8 @@
             })
             .catch(error => console.error('Error cargando el archivo GeoJSON:', error));
     
-        // Variable global para almacenar las coordenadas seleccionadas
         let selectedCoordinates = null;
     
-        // Evento para capturar clics en el mapa y abrir el formulario
         map.on('click', function(e) {
             selectedCoordinates = [e.latlng.lat, e.latlng.lng];
     
@@ -152,7 +138,6 @@
                         }
                     };
 
-                    // Usar la nueva función para crear el marcador
                     let newMarker = createMarkerWithEvents(newFeature);
 
                     let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
@@ -164,7 +149,6 @@
             });
         });
     
-        // Función auxiliar para crear el contenido del popup
         function createPopupContent(props) {
             return `
                 <div style="max-width: 250px; padding: 10px;">
@@ -186,7 +170,6 @@
             `;
         }
 
-        // Función para editar hotel
         function editarHotel(hotel, marker) {
             let props = hotel.properties;
             let coords = marker.getLatLng();
@@ -231,17 +214,13 @@
                 if (result.isConfirmed) {
                     let updatedProps = result.value;
                     
-                    // Actualizar las propiedades del hotel
                     hotel.properties = updatedProps;
 
-                    // Crear nuevo contenido del popup
                     let popupContent = createPopupContent(updatedProps);
                     
-                    // Crear un elemento DOM temporal
                     let tempDiv = document.createElement('div');
                     tempDiv.innerHTML = popupContent;
 
-                    // Añadir los eventos a los botones
                     tempDiv.querySelector('.edit-btn').addEventListener('click', function() {
                         editarHotel(hotel, marker);
                     });
@@ -250,10 +229,8 @@
                         eliminarHotel(hotel, marker);
                     });
 
-                    // Actualizar el contenido del popup
                     marker.getPopup().setContent(tempDiv);
 
-                    // Actualizar localStorage
                     let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
                     let index = hotelesGuardados.findIndex(h =>
                         h.geometry.coordinates[1] === coords.lat &&
@@ -270,7 +247,6 @@
             });
         }
 
-        // Función para eliminar hotel
         function eliminarHotel(hotel, marker) {
             let props = hotel.properties;
 
@@ -287,10 +263,8 @@
                 if (result.isConfirmed) {
                     let coords = marker.getLatLng();
 
-                    // Eliminar del mapa
                     map.removeLayer(marker);
 
-                    // Eliminar del localStorage
                     let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
                     hotelesGuardados = hotelesGuardados.filter(h =>
                         !(h.geometry.coordinates[1] === coords.lat &&
@@ -303,16 +277,13 @@
             });
         }
 
-        // Función para crear un marcador con eventos
         function createMarkerWithEvents(feature) {
             let marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], { icon: hotelIcon }).addTo(map);
             let popupContent = createPopupContent(feature.properties);
             
-            // Crear un elemento DOM temporal
             let tempDiv = document.createElement('div');
             tempDiv.innerHTML = popupContent;
 
-            // Añadir los eventos a los botones
             tempDiv.querySelector('.edit-btn').addEventListener('click', function() {
                 editarHotel(feature, marker);
             });
@@ -321,13 +292,11 @@
                 eliminarHotel(feature, marker);
             });
 
-            // Bind el popup con el contenido y los eventos
             marker.bindPopup(tempDiv);
             
             return marker;
         }
 
-        // Cargar los hoteles guardados en LocalStorage al iniciar
         window.onload = function() {
             let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
             hotelesGuardados.forEach(feature => {
