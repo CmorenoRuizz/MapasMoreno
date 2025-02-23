@@ -16,7 +16,15 @@
         <span class="h4">¡Principales hoteles en Málaga! Añade haciendo clic en el mapa, edita y elimina a tu gusto<br></span>
       </h1>
       <div class="d-flex justify-content-center bg-dark py-2">
-        <button id="findNearestBtn" class="btn btn-outline-light">Encontrar hotel más cercano</button>
+        <button id="findNearestBtn" class="btn btn-outline-light me-3">Encontrar hotel más cercano</button>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-light active" data-estrellas="todas">Todas</button>
+            <button type="button" class="btn btn-outline-light" data-estrellas="1">1★</button>
+            <button type="button" class="btn btn-outline-light" data-estrellas="2">2★</button>
+            <button type="button" class="btn btn-outline-light" data-estrellas="3">3★</button>
+            <button type="button" class="btn btn-outline-light" data-estrellas="4">4★</button>
+            <button type="button" class="btn btn-outline-light" data-estrellas="5">5★</button>
+        </div>
       </div>
       <div id="map" class="flex-grow-1 m-0 p-0"></div>
 
@@ -33,6 +41,7 @@
     <script>
         let marcadores = new Map();
         let hotelesGeoJSON = [];
+        let filtroActual = localStorage.getItem('filtroEstrellas') || 'todas';
 
         var map = L.map('map').setView([36.7213, -4.4217], 13);
     
@@ -52,39 +61,7 @@
             .then(response => response.json())
             .then(data => {
                 hotelesGeoJSON = data.features;
-                
-                L.geoJSON(data, {
-                    pointToLayer: function (feature, latlng) {
-                        let marker = L.marker(latlng, { icon: hotelIcon });
-                        let coordKey = `${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}`;
-                        marcadores.set(coordKey, marker);
-                        return marker;
-                    },
-                    onEachFeature: function (feature, layer) {
-                        if (feature.properties) {
-                            let popupContent = createPopupContent(feature.properties);
-                            layer.bindPopup(popupContent);
-
-                            layer.on('popupopen', function() {
-                                let currentMarker = this;
-                                let container = currentMarker.getPopup().getContent();
-
-                                let div = document.createElement('div');
-                                div.innerHTML = container;
-
-                                div.querySelector('.edit-btn').addEventListener('click', function() {
-                                    editarHotel(feature, currentMarker);
-                                });
-
-                                div.querySelector('.delete-btn').addEventListener('click', function() {
-                                    eliminarHotel(feature, currentMarker);
-                                });
-
-                                currentMarker.getPopup().setContent(div);
-                            });
-                        }
-                    }
-                }).addTo(map);
+                cargarTodosLosHoteles();
             })
             .catch(error => console.error('Error cargando el archivo GeoJSON:', error));
     
@@ -289,7 +266,13 @@
         }
 
         function createMarkerWithEvents(feature) {
-            let marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], { icon: hotelIcon }).addTo(map);
+            let marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], { icon: hotelIcon });
+            
+            
+            if (filtroActual === 'todas' || feature.properties.categoria.startsWith(filtroActual)) {
+                marker.addTo(map);
+            }
+            
             let popupContent = createPopupContent(feature.properties);
             
             let tempDiv = document.createElement('div');
@@ -330,6 +313,9 @@
 
         document.getElementById('findNearestBtn').addEventListener('click', function() {
             if ("geolocation" in navigator) {
+                
+                aplicarFiltro('todas');
+
                 navigator.geolocation.getCurrentPosition(function(position) {
                     const userLat = position.coords.latitude;
                     const userLon = position.coords.longitude;
@@ -382,15 +368,77 @@
             }
         });
 
+        function aplicarFiltro(estrellas, limpiarMarcadores = true) {
+            
+            filtroActual = estrellas;
+            localStorage.setItem('filtroEstrellas', estrellas);
+
+            
+            marcadores.forEach((marker, coordKey) => {
+                let [lat, lng] = coordKey.split(',');
+                let hotel = encontrarHotelPorCoordenadas(parseFloat(lat), parseFloat(lng));
+                
+                if (hotel) {
+                    if (estrellas === 'todas' || hotel.properties.categoria.startsWith(estrellas)) {
+                        marker.addTo(map);
+                    } else {
+                        map.removeLayer(marker);
+                    }
+                }
+            });
+
+            
+            document.querySelectorAll('.btn-group .btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.estrellas === estrellas) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function encontrarHotelPorCoordenadas(lat, lng) {
+            let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
+            let todosLosHoteles = [...hotelesGeoJSON, ...hotelesGuardados];
+            
+            return todosLosHoteles.find(hotel => 
+                hotel.geometry.coordinates[1] === lat && 
+                hotel.geometry.coordinates[0] === lng
+            );
+        }
+
+        function cargarTodosLosHoteles() {
+            let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
+            let todosLosHoteles = [...hotelesGeoJSON, ...hotelesGuardados];
+            
+            todosLosHoteles.forEach(feature => {
+                createMarkerWithEvents(feature);
+            });
+
+            
+            aplicarFiltro(filtroActual, false);
+        }
+
+        
+        document.querySelectorAll('.btn-group .btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                aplicarFiltro(this.dataset.estrellas);
+            });
+        });
+
+        
         window.onload = function() {
             let hotelesGuardados = JSON.parse(localStorage.getItem('hoteles')) || [];
-            hotelesGuardados.forEach(feature => {
-                createMarkerWithEvents(feature);
+            aplicarFiltro(filtroActual);
+
+            
+            document.querySelectorAll('.btn-group .btn').forEach(btn => {
+                if (btn.dataset.estrellas === filtroActual) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
             });
         };
     </script>
-    
-  
-
 </body>
 </html>
